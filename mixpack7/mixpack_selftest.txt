@@ -1,0 +1,440 @@
+MixPack yerel arayüz çekirdeği kendi kendini sınama (gerçek verilere dokunmaz: mixpack_2099.db / mixpack_2100.db geçici)
+
+>> @page 10
+=== Ayarlar ===
+Ayarlar. Yedek almayı unutmayın: bilgisayarı değiştirmeden önce mutlaka yedek alın.
+Düğmeler: [Firma bilgileri…] [Açılış kasa/banka…] [Negatif stok izni aç/kapat] [💾 Yedek al…] [Yedekten geri yükle…] [Yeni yıl aç…] [Yıl değiştir…]
+Ayar | Değer
+(0) Negatif stoğa satış (1=izinli) | 1
+(0) Açılış banka (€) | 0.00
+(0) Açılış kasa (€) | 0.00
+(0) Firma adı | MixPack
+
+>> @act A_SET_FIRM 0
+[FORM] Firma bilgileri (faturada görünür)
+   Firma adı                                    = MixPack GmbH
+   Adres (sokak, PLZ, şehir)                    = Hauptstr. 1, 10115 Berlin
+   Steuernummer                                  = 12/345/67890
+   USt-IdNr.                                     = DE123456789
+   Telefon                                       = 030 123456
+   E-posta                                       = info@mixpack.de
+   IBAN / Banka                                  = DE00 1234 5678
+[MSG] Kaydedildi: Firma bilgileri kaydedildi.
+
+>> @chk firma bilgisi kaydedildi|1|SELECT COUNT(*) FROM settings WHERE k='co_name' AND v='MixPack GmbH'
+TAMAM  firma bilgisi kaydedildi (beklenen 1, bulunan 1)
+
+>> @page 5
+=== Stoklar ===
+Bu listede henüz kayıt yok. Üstteki renkli düğmelerle ekleme yapabilirsiniz.
+Kartlar: [Aktif ürün: 0 (stil 1)] [Kritik stok (minimum altı): 0 (stil 0)] [Stokta yok: 0 (stil 0)] [Stok değeri (ort. maliyet): 0,00 € (stil 2)]
+Düğmeler: [＋ Yeni ürün] [Düzenle*] [Hareketler*] [Aktif / Pasif*] [Tarih itibarıyla stok…] [Dönem stok raporu…] [Excel/CSV…]
+Kod | Ürün | Kategori | Birim | Stok | Minimum | Alış fiyatı | Satış fiyatı | Durum
+
+>> @act A_PRD_NEW 0
+[FORM] Yeni ürün
+   Ürün adı *                                 = Salatalık
+   Ürün kodu (boş = otomatik)                 = 
+   Kategori                                      = Sebze
+   Birim                                         = kg
+   Alış fiyatı (€)                          = 1,50
+   Satış fiyatı (€, isteğe bağlı)        = 2,00
+   Minimum stok uyarısı                        = 5
+   KDV %                                         = 7
+   Açılış stoku (boş = 0)                   = 
+   Açılış birim maliyeti € (boş = alış fiyatı) = 
+[MSG] Kaydedildi: Ürün kaydedildi.
+
+>> @chk ürün kaydı (Türkçe karakter)|1|SELECT COUNT(*) FROM product WHERE name='Salatalık'
+TAMAM  ürün kaydı (Türkçe karakter) (beklenen 1, bulunan 1)
+
+>> @page 4
+=== Tedarikçiler ===
+Bu listede henüz kayıt yok. Üstteki renkli düğmelerle ekleme yapabilirsiniz.
+Kartlar: [Tedarikçilere toplam borcumuz: 0,00 € (stil 2)] [Borçlu olduğumuz tedarikçi: 0 (stil 0)] [Aktif tedarikçi: 0 (stil 0)]
+Düğmeler: [＋ Yeni tedarikçi] [Düzenle*] [📄 Hesap ekstresi*] [Ödeme yap*] [Ödeme iptali*] [Aktif / Pasif*] [Sadece borcumuz olanlar] [Excel/CSV…]
+Kod | Ad | Firma | Telefon | Bakiye (borcumuz) | Durum
+
+>> @act A_PAR_NEW 0
+[FORM] Yeni tedarikçi
+   Ad *                                          = Hollanda Gemüse BV
+   Firma adı                                    = 
+   Adres                                         = Venlo
+   Telefon                                       = 
+   E-posta (isteğe bağlı)                     = 
+   Açıklama                                    = 
+   Açılış bakiyesi € (borç +, boş=0)     = 
+
+>> @page 3
+=== Müşteriler ===
+Bu listede henüz kayıt yok. Üstteki renkli düğmelerle ekleme yapabilirsiniz.
+Kartlar: [Müşterilerden toplam alacak: 0,00 € (stil 2)] [Borçlu müşteri sayısı: 0 (stil 0)] [Aktif müşteri: 0 (stil 0)]
+Düğmeler: [＋ Yeni müşteri] [Düzenle*] [📄 Hesap ekstresi*] [Tahsilat al*] [Tahsilat iptali*] [Aktif / Pasif*] [Sadece borçlular] [Excel/CSV…]
+Kod | Ad | Firma | Telefon | Bakiye (borcu) | Durum
+
+>> @act A_PAR_NEW 0
+[FORM] Yeni müşteri
+   Ad *                                          = Şişli Müşteri İğne
+   Firma adı                                    = 
+   Adres                                         = 
+   Telefon                                       = 
+   E-posta (isteğe bağlı)                     = 
+   Açıklama                                    = 
+   Açılış bakiyesi € (borç +, boş=0)     = 
+
+>> @chk iki cari kartı|2|SELECT COUNT(*) FROM party
+TAMAM  iki cari kartı (beklenen 2, bulunan 2)
+
+>> @act A_NEWPURCH 0
+[FORM] Yeni alış faturası
+   Fatura tarihi (gg.aa.yyyy)                    = 01.11.2099
+   Tedarikçi                                    = 1
+   Tedarikçi fatura no (zorunlu)                = T-1
+   Ödeme durumu                                 = 0
+   Ödendiyse ödeme şekli                      = N
+   Açıklama                                    = 
+[FORM] Fatura satırı ekle
+   Ürün                                        = 1
+   Miktar                                        = 100
+   Birim fiyat € (KDV dahil; boş = ürün fiyatı) = 1,50
+[SORU] Satır eklendi: Eklendi: Salatalık — 100 × 1,50 €
+Şimdiye kadar 1 satır, toplam 150,00 €.
+
+Başka bir ürün satırı eklensin mi?
+       => h
+[SORU] Faturayı kaydet: Fatura özeti
+Tarih: 01.11.2099
+Tedarikçi: Hollanda Gemüse BV
+  • Salatalık — 100 × 1,50 € = 150,00 €
+
+Toplam: 150,00 €
+Ödeme: ÖDENMEDİ (cariye borç yazılır)
+
+Fatura kaydedilsin mi?
+       => e
+[MSG] Kaydedildi: Fatura T-1 kaydedildi. Stok ve tedarikçi borcu güncellendi.
+
+>> @chk stok 100|100|SELECT opening_qty+COALESCE((SELECT SUM(q) FROM mv WHERE pid=1),0) FROM product WHERE id=1
+TAMAM  stok 100 (beklenen 100, bulunan 100)
+
+>> @chk tedarikçi borcu 150 €|15000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=1),0) FROM party WHERE id=1
+TAMAM  tedarikçi borcu 150 € (beklenen 15000, bulunan 15000)
+
+>> @act A_NEWSALE 0
+[FORM] Yeni satış faturası
+   Fatura tarihi (gg.aa.yyyy)                    = 02.11.2099
+   Müşteri                                     = 2
+   Fatura no (boş = otomatik)                   = 
+   Ödeme durumu                                 = 0
+   Ödendiyse ödeme şekli                      = N
+   Açıklama                                    = 
+[FORM] Fatura satırı ekle
+   Ürün                                        = 1
+   Miktar                                        = 30
+   Birim fiyat € (KDV dahil; boş = ürün fiyatı) = 2,00
+[SORU] Satır eklendi: Eklendi: Salatalık — 30 × 2,00 €
+Şimdiye kadar 1 satır, toplam 60,00 €.
+
+Başka bir ürün satırı eklensin mi?
+       => h
+[SORU] Faturayı kaydet: Fatura özeti
+Tarih: 02.11.2099
+Müşteri: Şişli Müşteri İğne
+  • Salatalık — 30 × 2,00 € = 60,00 €
+
+Toplam: 60,00 €
+Ödeme: ÖDENMEDİ (cariye borç yazılır)
+
+Fatura kaydedilsin mi?
+       => e
+[SORU] Kaydedildi: Fatura 99-11-01 kaydedildi.
+Yazdırma sayfası açılsın mı?
+       => h
+
+>> @chk satış sonrası stok 70|70|SELECT opening_qty+COALESCE((SELECT SUM(q) FROM mv WHERE pid=1),0) FROM product WHERE id=1
+TAMAM  satış sonrası stok 70 (beklenen 70, bulunan 70)
+
+>> @chk otomatik fatura no 99-11-01|1|SELECT COUNT(*) FROM invoice WHERE no='99-11-01' AND type='S'
+TAMAM  otomatik fatura no 99-11-01 (beklenen 1, bulunan 1)
+
+>> @chk müşteri borcu 60 €|6000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=2),0) FROM party WHERE id=2
+TAMAM  müşteri borcu 60 € (beklenen 6000, bulunan 6000)
+
+>> @page 1
+=== Satış faturaları ===
+Kartlar: [Toplam satış (dönem): 60,00 € (stil 1)] [Bu ay: 0,00 € (stil 1)] [Ödenmemiş (alacak): 60,00 € (stil 3)] [Fatura adedi: 1 (stil 0)]
+Düğmeler: [＋ Yeni fatura] [Detay / satırlar*] [🖨 Yazdır / PDF*] [İptal et*] [Filtrele / ara…] [Excel/CSV…]
+Fatura no | Tarih | Müşteri | Tutar | Durum
+(2) 99-11-01 | 02.11.2099 | Şişli Müşteri İğne | 60,00 € | ÖDENMEDİ
+
+>> @act A_INV_PRINT 2
+Fatura dosyası: fatura_99-11-01.html (tarayıcıdan Ctrl+P ile A4 yazdır veya 'PDF olarak kaydet')
+[AÇ] fatura_99-11-01.html
+
+>> @exists fatura_99-11-01.html
+TAMAM  fatura_99-11-01.html
+
+>> @rm fatura_99-11-01.html
+
+>> @act A_INV_DETAIL 2
+[TABLO] Fatura 99-11-01
+   Ürün | Birim | Miktar | Birim fiyat | Toplam | KDV %
+   Salatalık | kg | 30 | 2,00 € | 60,00 € | 7
+   02.11.2099 · Müşteri · Şişli Müşteri İğne · ÖDENMEDİ · Toplam: 60,00 €
+
+>> @page 3
+=== Müşteriler ===
+Kartlar: [Müşterilerden toplam alacak: 60,00 € (stil 3)] [Borçlu müşteri sayısı: 1 (stil 0)] [Aktif müşteri: 1 (stil 0)]
+Düğmeler: [＋ Yeni müşteri] [Düzenle*] [📄 Hesap ekstresi*] [Tahsilat al*] [Tahsilat iptali*] [Aktif / Pasif*] [Sadece borçlular] [Excel/CSV…]
+Kod | Ad | Firma | Telefon | Bakiye (borcu) | Durum
+(2) M0001 | Şişli Müşteri İğne |  |  | 60,00 € | 
+
+>> @act A_PAR_PAY 2
+[FORM] Tahsilat — Şişli Müşteri İğne
+   (Güncel bakiye: 60,00 €)
+   Tutar (€)                                   = 20
+   Ödeme şekli                                 = N
+   Tarih (gg.aa.yyyy)                            = 03.11.2099
+   Not                                           = 
+[MSG] Kaydedildi: Tahsilat kaydedildi.
+
+>> @chk müşteri borcu 40 €|4000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=2),0) FROM party WHERE id=2
+TAMAM  müşteri borcu 40 € (beklenen 4000, bulunan 4000)
+
+>> @chk kasa 20 €|2000|SELECT COALESCE(SUM(a),0) FROM fin WHERE m='N'
+TAMAM  kasa 20 € (beklenen 2000, bulunan 2000)
+
+>> @act A_NEWSALE 0
+[FORM] Yeni satış faturası
+   Fatura tarihi (gg.aa.yyyy)                    = 04.11.2099
+   Müşteri                                     = 2
+   Fatura no (boş = otomatik)                   = 99-11-01
+   Ödeme durumu                                 = 0
+   Ödendiyse ödeme şekli                      = N
+   Açıklama                                    = 
+[FORM] Fatura satırı ekle
+   Ürün                                        = 1
+   Miktar                                        = 1
+   Birim fiyat € (KDV dahil; boş = ürün fiyatı) = 2
+[SORU] Satır eklendi: Eklendi: Salatalık — 1 × 2,00 €
+Şimdiye kadar 1 satır, toplam 2,00 €.
+
+Başka bir ürün satırı eklensin mi?
+       => h
+[SORU] Faturayı kaydet: Fatura özeti
+Tarih: 04.11.2099
+Müşteri: Şişli Müşteri İğne
+  • Salatalık — 1 × 2,00 € = 2,00 €
+
+Toplam: 2,00 €
+Ödeme: ÖDENMEDİ (cariye borç yazılır)
+
+Fatura kaydedilsin mi?
+       => e
+[MSG] Hata: Bu fatura numarası zaten kullanılmış (iptal edilenler dahil).
+
+>> @chk mükerrer no kaydedilmedi|2|SELECT COUNT(*) FROM invoice
+TAMAM  mükerrer no kaydedilmedi (beklenen 2, bulunan 2)
+
+>> @act A_EXP_ADD 0
+[FORM] Yeni gider
+   Tarih (gg.aa.yyyy)                            = 31.02.2099
+   Kategori                                      = Mazot
+   Açıklama                                    = Diesel
+   Tutar (€)                                   = 80
+   Ödeme                                        = N
+[MSG] Hata: “Tarih (gg.aa.yyyy)” için geçerli bir tarih girin (gg.aa.yyyy) ve dönem yılı içinde olsun.
+[FORM] Yeni gider
+   Tarih (gg.aa.yyyy)                            = 11.11.2099
+   Kategori                                      = Mazot
+   Açıklama                                    = Diesel
+   Tutar (€)                                   = 80
+   Ödeme                                        = N
+[MSG] Kaydedildi: Gider kaydedildi (kasa/banka güncellendi).
+
+>> @chk gider kaydı|1|SELECT COUNT(*) FROM expense
+TAMAM  gider kaydı (beklenen 1, bulunan 1)
+
+>> @chk kasa -60 €|-6000|SELECT COALESCE(SUM(a),0) FROM fin WHERE m='N'
+TAMAM  kasa -60 € (beklenen -6000, bulunan -6000)
+
+>> @page 3
+=== Müşteriler ===
+Kartlar: [Müşterilerden toplam alacak: 40,00 € (stil 3)] [Borçlu müşteri sayısı: 1 (stil 0)] [Aktif müşteri: 1 (stil 0)]
+Düğmeler: [＋ Yeni müşteri] [Düzenle*] [📄 Hesap ekstresi*] [Tahsilat al*] [Tahsilat iptali*] [Aktif / Pasif*] [Sadece borçlular] [Excel/CSV…]
+Kod | Ad | Firma | Telefon | Bakiye (borcu) | Durum
+(2) M0001 | Şişli Müşteri İğne |  |  | 40,00 € | 
+
+>> @act A_PAR_STMT 2
+[FORM] Hesap ekstresi — tarih aralığı
+   Başlangıç (boş = en baştan)              = 
+   Bitiş (boş = hepsi)                         = 
+[TABLO] Hesap ekstresi — Şişli Müşteri İğne (M0001)
+   Tarih | İşlem | Borç | Alacak | Bakiye
+   Açılış | Açılış bakiyesi | 0,00 € | 0,00 € | 0,00 €
+   02.11.2099 | Fatura 99-11-01 | 60,00 € | 0,00 € | 60,00 €
+   03.11.2099 | Tahsilat | 0,00 € | 20,00 € | 40,00 €
+   Güncel bakiye: 40,00 €     Toplam fatura: 60,00 €     Toplam tahsilat: 20,00 €
+
+>> @page 9
+=== Raporlar ===
+Dönem: 01.01.2099 – 31.12.2099
+
+SATIŞ
+  Satış (KDV dahil)                              60,00 €
+    - Peşin / ödenmiş                             0,00 €
+    - Veresiye (cariye yazılan)                  60,00 €
+  Cari tahsilatları                              20,00 €
+
+ALIŞ VE GİDER
+  Toplam alış                                   150,00 €
+  Tedarikçiye yapılan ödemeler                    0,00 €
+  İşletme giderleri                              80,00 €
+
+KÂR (ortalama maliyet, KDV hariç)
+  Satış cirosu (net)                             56,07 €
+  Satılan ürün maliyeti                         -42,06 €
+  Brüt kâr                                       14,01 €
+  İşletme giderleri                             -80,00 €
+  GİDERLER SONRASI SONUÇ                        -65,99 €
+  Stok değeri (ort. maliyet)                     98,13 €
+
+ANLIK DURUM
+  Müşteri alacağı                                40,00 €
+  Tedarikçi borcu                               150,00 €
+  Kasa                                          -60,00 €
+  Banka                                           0,00 €
+
+Kartlar: [Satış (KDV dahil): 60,00 € (stil 1)] [Toplam alış: 150,00 € (stil 0)] [İşletme giderleri: 80,00 € (stil 3)] [Brüt kâr: 14,01 € (stil 2)] [Giderler sonrası sonuç: -65,99 € (stil 3)]
+Düğmeler: [Özet ve kâr] [Ürünler] [Müşteriler] [Satış dağılımı] [Yıl karşılaştırma] [İşlem geçmişi] [Dönem seç…] [Excel/CSV…]
+
+
+>> @act A_REP_SUM 0
+
+>> @show
+=== Raporlar ===
+Dönem: 01.01.2099 – 31.12.2099
+
+SATIŞ
+  Satış (KDV dahil)                              60,00 €
+    - Peşin / ödenmiş                             0,00 €
+    - Veresiye (cariye yazılan)                  60,00 €
+  Cari tahsilatları                              20,00 €
+
+ALIŞ VE GİDER
+  Toplam alış                                   150,00 €
+  Tedarikçiye yapılan ödemeler                    0,00 €
+  İşletme giderleri                              80,00 €
+
+KÂR (ortalama maliyet, KDV hariç)
+  Satış cirosu (net)                             56,07 €
+  Satılan ürün maliyeti                         -42,06 €
+  Brüt kâr                                       14,01 €
+  İşletme giderleri                             -80,00 €
+  GİDERLER SONRASI SONUÇ                        -65,99 €
+  Stok değeri (ort. maliyet)                     98,13 €
+
+ANLIK DURUM
+  Müşteri alacağı                                40,00 €
+  Tedarikçi borcu                               150,00 €
+  Kasa                                          -60,00 €
+  Banka                                           0,00 €
+
+Kartlar: [Satış (KDV dahil): 60,00 € (stil 1)] [Toplam alış: 150,00 € (stil 0)] [İşletme giderleri: 80,00 € (stil 3)] [Brüt kâr: 14,01 € (stil 2)] [Giderler sonrası sonuç: -65,99 € (stil 3)]
+Düğmeler: [Özet ve kâr] [Ürünler] [Müşteriler] [Satış dağılımı] [Yıl karşılaştırma] [İşlem geçmişi] [Dönem seç…] [Excel/CSV…]
+
+
+>> @act A_REP_PROD 0
+
+>> @show
+=== Raporlar ===
+Dönem: 01.01.2099 – 31.12.2099
+
+Düğmeler: [Özet ve kâr] [Ürünler] [Müşteriler] [Satış dağılımı] [Yıl karşılaştırma] [İşlem geçmişi] [Dönem seç…] [Excel/CSV…]
+Ürün | Birim | Satılan | Satış tutarı | Alınan | Alış tutarı
+(0) Salatalık | kg | 30 | 60,00 € | 100 | 150,00 €
+
+>> @page 1
+=== Satış faturaları ===
+Kartlar: [Toplam satış (dönem): 60,00 € (stil 1)] [Bu ay: 0,00 € (stil 1)] [Ödenmemiş (alacak): 60,00 € (stil 3)] [Fatura adedi: 1 (stil 0)]
+Düğmeler: [＋ Yeni fatura] [Detay / satırlar*] [🖨 Yazdır / PDF*] [İptal et*] [Filtrele / ara…] [Excel/CSV…]
+Fatura no | Tarih | Müşteri | Tutar | Durum
+(2) 99-11-01 | 02.11.2099 | Şişli Müşteri İğne | 60,00 € | ÖDENMEDİ
+
+>> @act A_CSV 0
+[FORM] Excel/CSV dışa aktar
+   Rapor                                         = 1
+[AÇ] mixpack_export_1.csv
+
+>> @exists mixpack_export_1.csv
+TAMAM  mixpack_export_1.csv
+
+>> @rm mixpack_export_1.csv
+
+>> @act A_INV_CANCEL 2
+[FORM] Faturayı iptal et
+   (Fatura 99-11-01 iptal edilecek. Stok, cari ve kasa/banka etkisi geri alınır; kayıt arşivde kalır.)
+   İptal nedeni (zorunlu)                       = test
+[MSG] Tamam: Fatura iptal edildi. Düzeltme için yeni fatura girin.
+
+>> @chk iptal sonrası stok 100|100|SELECT opening_qty+COALESCE((SELECT SUM(q) FROM mv WHERE pid=1),0) FROM product WHERE id=1
+TAMAM  iptal sonrası stok 100 (beklenen 100, bulunan 100)
+
+>> @chk iptal sonrası müşteri bakiyesi -20 €|-2000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=2),0) FROM party WHERE id=2
+TAMAM  iptal sonrası müşteri bakiyesi -20 € (beklenen -2000, bulunan -2000)
+
+>> @page 10
+=== Ayarlar ===
+Ayarlar. Yedek almayı unutmayın: bilgisayarı değiştirmeden önce mutlaka yedek alın.
+Düğmeler: [Firma bilgileri…] [Açılış kasa/banka…] [Negatif stok izni aç/kapat] [💾 Yedek al…] [Yedekten geri yükle…] [Yeni yıl aç…] [Yıl değiştir…]
+Ayar | Değer
+(0) Negatif stoğa satış (1=izinli) | 1
+(0) Açılış banka (€) | 0.00
+(0) Açılış kasa (€) | 0.00
+(0) Adres | Hauptstr. 1, 10115 Berlin
+(0) E-posta | info@mixpack.de
+(0) IBAN/Banka | DE00 1234 5678
+(0) Firma adı | MixPack GmbH
+(0) Telefon | 030 123456
+(0) Steuernummer | 12/345/67890
+(0) USt-IdNr. | DE123456789
+
+>> @act A_SET_BACKUP 0
+[FORM] Yedek al
+   (Yedek klasörü: USB bellek veya harici disk yolu yazabilirsiniz (örn. E:\yedek). Boş klasör adı = 'yedekler'.)
+   Yedek klasörü                               = .
+[MSG] Yedek: Yedek alındı:
+./mixpack_2099_20261126_100730.db
+
+>> @act A_SET_NEWYEAR 0
+[FORM] Yeni yıl / dönem aç
+   (2099 yılındaki kayıtlardan devir yapılır. Eski yıl arşiv olarak korunur; fatura numaraları yeni yılda 01'den başlar.)
+   Yeni yıl                                     = 2100
+   Müşteri/tedarikçi kartları aktarılsın   = 1
+   Cari borç/alacak bakiyeleri devredilsin      = 1
+   Ürün kartları aktarılsın                 = 1
+   Yıl sonu stokları (ort. maliyetle) devredilsin = 1
+[SORU] Yeni yıl: 2100 yılı oluşturulsun mu?
+       => e
+2100 yılı oluşturuldu; fatura numaraları 00-01-01'den başlar. 2099 yılı arşiv olarak korundu.
+[MSG] Tamam: Yeni yıl açıldı ve ekrana geçildi.
+
+>> @chk 2100: stok devri 100|100|SELECT opening_qty FROM product WHERE id=1
+TAMAM  2100: stok devri 100 (beklenen 100, bulunan 100)
+
+>> @chk 2100: müşteri bakiyesi devri|-2000|SELECT opening FROM party WHERE kind='C'
+TAMAM  2100: müşteri bakiyesi devri (beklenen -2000, bulunan -2000)
+
+>> @chk 2100: tedarikçi borcu devri|15000|SELECT opening FROM party WHERE kind='S'
+TAMAM  2100: tedarikçi borcu devri (beklenen 15000, bulunan 15000)
+
+>> @act A_SET_YEAR 0
+[FORM] Yıl değiştir
+   Çalışılacak yıl                          = 2099
+
+>> @chk 2099'a dönüldü (2 fatura)|2|SELECT COUNT(*) FROM invoice
+TAMAM  2099'a dönüldü (2 fatura) (beklenen 2, bulunan 2)
+
+>> @exit
+
+SONUÇ: Tüm denetimler başarılı.

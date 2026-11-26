@@ -1,0 +1,16 @@
+MixPack pencere sınaması
+TAMAM  sayfa 0 (Ana ekran): 5 düğme, 8 kart, 6 kolon, 0 satır
+TAMAM  sayfa 1 (Satış faturaları): 6 düğme, 4 kart, 5 kolon, 0 satır
+TAMAM  sayfa 2 (Alış faturaları): 5 düğme, 4 kart, 5 kolon, 0 satır
+TAMAM  sayfa 3 (Müşteriler): 8 düğme, 3 kart, 6 kolon, 0 satır
+TAMAM  sayfa 4 (Tedarikçiler): 8 düğme, 3 kart, 6 kolon, 0 satır
+TAMAM  sayfa 5 (Stoklar): 7 düğme, 4 kart, 9 kolon, 0 satır
+TAMAM  sayfa 6 (Kasa (nakit)): 1 düğme, 3 kart, 5 kolon, 0 satır
+TAMAM  sayfa 7 (Banka): 1 düğme, 3 kart, 5 kolon, 0 satır
+TAMAM  sayfa 8 (Giderler): 4 düğme, 3 kart, 6 kolon, 0 satır
+TAMAM  sayfa 9 (Raporlar): 8 düğme, 5 kart, 0 kolon, 0 satır
+TAMAM  sayfa 10 (Ayarlar): 7 düğme, 0 kart, 2 kolon, 4 satır
+TAMAM  form: pencere açıldı, Türkçe karakter ve seçimler geri okundu (r=1, t=Şişli İğne ğüşiöç €, s=b)
+TAMAM  tablo penceresi açıldı ve kapandı
+
+SONUÇ: Tüm pencere denetimleri başarılı.

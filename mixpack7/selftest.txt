@@ -1,0 +1,158 @@
+# MixPack yerel arayüz çekirdeği senaryosu (gerçek verilere dokunmaz: 2099/2100 geçici yıllar)
+@page 10
+MixPack GmbH
+Hauptstr. 1, 10115 Berlin
+12/345/67890
+DE123456789
+030 123456
+info@mixpack.de
+DE00 1234 5678
+@act A_SET_FIRM 0
+@chk firma bilgisi kaydedildi|1|SELECT COUNT(*) FROM settings WHERE k='co_name' AND v='MixPack GmbH'
+@page 5
+Salatalık
+
+Sebze
+kg
+1,50
+2,00
+5
+7
+
+
+@act A_PRD_NEW 0
+@chk ürün kaydı (Türkçe karakter)|1|SELECT COUNT(*) FROM product WHERE name='Salatalık'
+@page 4
+Hollanda Gemüse BV
+
+Venlo
+
+
+
+
+@act A_PAR_NEW 0
+@page 3
+Şişli Müşteri İğne
+
+
+
+
+
+
+@act A_PAR_NEW 0
+@chk iki cari kartı|2|SELECT COUNT(*) FROM party
+# alış faturası 100 kg x 1,50 (ödenmedi)
+01.11.2099
+1
+T-1
+0
+N
+
+1
+100
+1,50
+h
+e
+@act A_NEWPURCH 0
+@chk stok 100|100|SELECT opening_qty+COALESCE((SELECT SUM(q) FROM mv WHERE pid=1),0) FROM product WHERE id=1
+@chk tedarikçi borcu 150 €|15000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=1),0) FROM party WHERE id=1
+# satış faturası 30 kg x 2,00 (ödenmedi)
+02.11.2099
+2
+
+0
+N
+
+1
+30
+2,00
+h
+e
+h
+@act A_NEWSALE 0
+@chk satış sonrası stok 70|70|SELECT opening_qty+COALESCE((SELECT SUM(q) FROM mv WHERE pid=1),0) FROM product WHERE id=1
+@chk otomatik fatura no 99-11-01|1|SELECT COUNT(*) FROM invoice WHERE no='99-11-01' AND type='S'
+@chk müşteri borcu 60 €|6000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=2),0) FROM party WHERE id=2
+@page 1
+@act A_INV_PRINT 2
+@exists fatura_99-11-01.html
+@rm fatura_99-11-01.html
+h
+@act A_INV_DETAIL 2
+# kısmi tahsilat 20 €
+@page 3
+20
+N
+03.11.2099
+
+@act A_PAR_PAY 2
+@chk müşteri borcu 40 €|4000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=2),0) FROM party WHERE id=2
+@chk kasa 20 €|2000|SELECT COALESCE(SUM(a),0) FROM fin WHERE m='N'
+# mükerrer fatura numarası reddedilmeli
+04.11.2099
+2
+99-11-01
+0
+N
+
+1
+1
+2
+h
+e
+@act A_NEWSALE 0
+@chk mükerrer no kaydedilmedi|2|SELECT COUNT(*) FROM invoice
+# geçersiz tarih önce reddedilir, sonra doğrusu kabul edilir
+31.02.2099
+Mazot
+Diesel
+80
+N
+11.11.2099
+Mazot
+Diesel
+80
+N
+@act A_EXP_ADD 0
+@chk gider kaydı|1|SELECT COUNT(*) FROM expense
+@chk kasa -60 €|-6000|SELECT COALESCE(SUM(a),0) FROM fin WHERE m='N'
+@page 3
+
+
+h
+@act A_PAR_STMT 2
+@page 9
+@act A_REP_SUM 0
+@show
+@act A_REP_PROD 0
+@show
+
+# CSV
+@page 1
+1
+@act A_CSV 0
+@exists mixpack_export_1.csv
+@rm mixpack_export_1.csv
+# fatura iptali
+test
+@act A_INV_CANCEL 2
+@chk iptal sonrası stok 100|100|SELECT opening_qty+COALESCE((SELECT SUM(q) FROM mv WHERE pid=1),0) FROM product WHERE id=1
+@chk iptal sonrası müşteri bakiyesi -20 €|-2000|SELECT opening+COALESCE((SELECT SUM(debit-credit) FROM led WHERE pid=2),0) FROM party WHERE id=2
+# yedek + yeni yıl devri
+@page 10
+.
+@act A_SET_BACKUP 0
+2100
+1
+1
+1
+1
+e
+@act A_SET_NEWYEAR 0
+@chk 2100: stok devri 100|100|SELECT opening_qty FROM product WHERE id=1
+@chk 2100: müşteri bakiyesi devri|-2000|SELECT opening FROM party WHERE kind='C'
+@chk 2100: tedarikçi borcu devri|15000|SELECT opening FROM party WHERE kind='S'
+2099
+@act A_SET_YEAR 0
+@chk 2099'a dönüldü (2 fatura)|2|SELECT COUNT(*) FROM invoice
+@exit
